@@ -3,6 +3,8 @@
 # Fail fast and fail hard.
 set -eo pipefail
 
+echo "Arguments passed in $@"
+
 # Paths.
 BIN_DIR=$(cd $(dirname $0); pwd) # absolute path
 ROOT_DIR=$(dirname $BIN_DIR)
@@ -10,12 +12,15 @@ BUILD_DIR=$1
 CACHE_DIR=$2
 CACHED_DIRS=".heroku"
 WORKING_DIR=$(pwd)
+echo "BIN_DIR: $BIN_DIR"
+echo "ROOT_DIR: $ROOT_DIR"
+echo "BUILD_DIR: $BUILD_DIR"
 
 rm -fr $CACHE_DIR
 mkdir -p $CACHE_DIR
 
 # Versions.
-PYTHON_VERSION="python-3.4.3"
+PYTHON_VERSION="python-3.6.8"
 PYTHON_STACK="cedar-14"
 NGINX_VERSION="nginx-1.7.2"
 PCRE_VERSION='pcre-8.36'
@@ -95,6 +100,8 @@ make install &> /dev/null
 mkdir -p $BUILD_DIR/.profile.d
 cp $ROOT_DIR/conf/path.sh $BUILD_DIR/.profile.d/
 
+# If nginx.conf.erb does not exist in the project, copy in the default
+# so our build works
 if [[ ! -f $BUILD_DIR/nginx.conf.erb ]]; then
   cp $ROOT_DIR/conf/nginx.conf.erb $BUILD_DIR/nginx.conf.erb
 fi
