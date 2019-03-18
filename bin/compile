@@ -12,9 +12,9 @@ BUILD_DIR=$1
 CACHE_DIR=$2
 CACHED_DIRS=".heroku"
 WORKING_DIR=$(pwd)
-echo "BIN_DIR: $BIN_DIR"
-echo "ROOT_DIR: $ROOT_DIR"
-echo "BUILD_DIR: $BUILD_DIR"
+echo "BIN_DIR: $BIN_DIR (Buildpack bin dir)"
+echo "ROOT_DIR: $ROOT_DIR (Buildpack clone dir)"
+echo "BUILD_DIR: $BUILD_DIR (Repo clone dir)"
 
 rm -fr $CACHE_DIR
 mkdir -p $CACHE_DIR
@@ -36,7 +36,7 @@ if [[ ! -d "$CACHE_DIR/$PYTHON_VERSION" ]]; then
 fi
 
 # without setting a UTF-8 encoding, pip8 exposes a bug: https://github.com/multani/sonata/issues/72
-export LANG=en_GB.utf-8
+export LANG=en_US.utf-8
 
 export PATH=$CACHE_DIR/$PYTHON_VERSION/bin:$PATH
 export C_INCLUDE_PATH=$CACHE_DIR/$PYTHON_VERSION/include
@@ -73,25 +73,30 @@ fi
 pelican -d -o $BUILD_DIR/public -s $CONFIG_FILE $BUILD_DIR/content | indent
 
 puts-step "Installing nginx ($STACK)"
-mkdir -p "$1/bin/"
-cp "$BIN_DIR/nginx-$STACK" "$1/bin/nginx"
+mkdir -p "$BUILD_DIR/bin/"
+cp "$BIN_DIR/nginx-$STACK" "$BUILD_DIR/bin/nginx"
 nginx_version=$($BIN_DIR/nginx-$STACK -V 2>&1 | head -1 | awk '{ print $NF }')
 puts-step "nginx-buildpack: Installed ${nginx_version} to app/bin"
-cp $BIN_DIR/start-nginx "$1/bin/"
+cp $BIN_DIR/start-nginx "$BUILD_DIR/bin/"
 puts-step 'nginx-buildpack: Added start-nginx to app/bin'
-cp $BIN_DIR/start-nginx-solo "$1/bin/"
+cp $BIN_DIR/start-nginx-solo "$BUILD_DIR/bin/"
 puts-step 'nginx-buildpack: Added start-nginx-solo to app/bin'
 
-mkdir -p "$1/config"
+mkdir -p "$BUILD_DIR/config"
 
-cp $BIN_DIR/../config/mime.types "$1/config/"
+cp $BIN_DIR/../config/mime.types "$BUILD_DIR/config/"
 echo '-----> nginx-buildpack: Default mime.types copied to app/config/'
 
-if [[ ! -f $1/config/nginx.conf.erb ]]; then
-  cp $BIN_DIR/../config/nginx.conf.erb "$1/config/"
+if [[ ! -f $BUILD_DIR/config/nginx.conf.erb ]]; then
+  cp $BIN_DIR/../config/nginx.conf.erb "$BUILD_DIR/config/"
   echo '-----> nginx-buildpack: Default config copied to app/config.'
 else
   echo '-----> nginx-buildpack: Custom config found in app/config.'
+fi
+
+if [[ -f $BUILD_DIR/config/.htpasswd ]]; then
+  echo '-----> nginx-buildpack: htpasswd file found in app/config.'
+  cp "$BUILD_DIR/config/.htpasswd" $BUILD_DIR/public
 fi
 
 exit 0
