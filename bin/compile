@@ -70,6 +70,9 @@ else
   puts-warn "A pelicanconf.py or publishconf.py file is required."
   exit 1
 fi
+
+echo pelican -d -o $BUILD_DIR/public -s $CONFIG_FILE $BUILD_DIR/content | indent
+ls -l $BUILD_DIR | indent
 pelican -d -o $BUILD_DIR/public -s $CONFIG_FILE $BUILD_DIR/content | indent
 
 puts-step "Installing nginx ($STACK)"
