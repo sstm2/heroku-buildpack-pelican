@@ -16,7 +16,7 @@ echo "BIN_DIR: $BIN_DIR (Buildpack bin dir)"
 echo "ROOT_DIR: $ROOT_DIR (Buildpack clone dir)"
 echo "BUILD_DIR: $BUILD_DIR (Repo clone dir)"
 
-rm -fr $CACHE_DIR
+find $CACHE_DIR -exec rm -f {} \;
 mkdir -p $CACHE_DIR
 
 # Versions.
