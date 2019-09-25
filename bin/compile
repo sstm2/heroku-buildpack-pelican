@@ -15,8 +15,9 @@ WORKING_DIR=$(pwd)
 echo "BIN_DIR: $BIN_DIR (Buildpack bin dir)"
 echo "ROOT_DIR: $ROOT_DIR (Buildpack clone dir)"
 echo "BUILD_DIR: $BUILD_DIR (Repo clone dir)"
+echo "CACHE_DIR: $CACHE_DIR (Where python and packages go dir)"
 
-find $CACHE_DIR -mindepth 1 -maxdepth 2 -exec rm -rf {} \;
+find $CACHE_DIR -mindepth 1 -maxdepth 2 -exec rm -rf {} || true \;
 mkdir -p $CACHE_DIR
 
 # Versions.
